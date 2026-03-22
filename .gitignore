@@ -1,0 +1,4 @@
+data/bids.db
+data/attachments/
+__pycache__/
+*.pyc
