@@ -4,6 +4,8 @@ Version: 0.1.0
 Summary: 军工招投标商机全周期追踪工具
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
 
 # 军事招投标全周期追踪系统
 

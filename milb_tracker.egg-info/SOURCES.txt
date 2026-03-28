@@ -1,11 +1,13 @@
 README.md
 pyproject.toml
 milb_tracker/__init__.py
-milb_tracker/cli.py
+milb_tracker/config.py
+milb_tracker/skill.py
 milb_tracker.egg-info/PKG-INFO
 milb_tracker.egg-info/SOURCES.txt
 milb_tracker.egg-info/dependency_links.txt
 milb_tracker.egg-info/entry_points.txt
+milb_tracker.egg-info/requires.txt
 milb_tracker.egg-info/top_level.txt
 milb_tracker/scripts/init_db.py
 milb_tracker/scripts/manage_users.py
@@ -15,8 +17,7 @@ milb_tracker/scripts/register_project.py
 milb_tracker/scripts/reminder_check.py
 milb_tracker/scripts/stats.py
 milb_tracker/scripts/update_project.py
-milb_tracker/tools/__init__.py
-milb_tracker/tools/bid_project_manager.py
+tests/test_config.py
 tests/test_init_db.py
 tests/test_manage_users.py
 tests/test_query_projects.py

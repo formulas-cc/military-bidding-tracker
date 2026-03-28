@@ -1,2 +1,2 @@
 [console_scripts]
-milb-tracker = milb_tracker.cli:main
+milb-tracker = milb_tracker.skill:main
