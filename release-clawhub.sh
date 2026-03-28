@@ -63,6 +63,8 @@ release_project() {
     conftest.py \
     run_tests.sh \
     .env \
+    .env.example \
+    .gitignore \
     __pycache__ \
     milb_tracker/__pycache__ \
     milb_tracker/scripts/__pycache__ \
@@ -70,7 +72,9 @@ release_project() {
     milb_email.egg-info/ \
     milb_fetcher.egg-info/ \
     .pytest_cache/ \
-    relaese-clawhub \
+    .coverage \
+    htmlcov/ \
+    release-clawhub.sh \
     2>/dev/null || true
   success "非发布文件已删除"
 
@@ -122,8 +126,8 @@ release_project() {
 usage() {
   echo ""
   echo "用法:"
-  echo "  ./relaese-clawhub            发布到 ClawHub（本地模式）"
-  echo "  ./relaese-clawhub --help     显示此帮助"
+  echo "  ./release-clawhub.sh            发布到 ClawHub（本地模式）"
+  echo "  ./release-clawhub.sh --help     显示此帮助"
   echo ""
 }
 
