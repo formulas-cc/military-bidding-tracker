@@ -19,7 +19,9 @@ import sqlite3
 import sys
 from datetime import datetime, timedelta
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
+from milb_tracker.config import get_db_path
+
+DB_PATH = get_db_path()
 
 ACTIVE_STATUSES = ('registered', 'doc_pending', 'doc_purchased', 'preparing', 'sealed')
 

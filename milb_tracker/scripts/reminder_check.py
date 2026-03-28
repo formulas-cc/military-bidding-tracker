@@ -30,7 +30,9 @@ import sqlite3
 import sys
 from datetime import datetime, timedelta
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
+from milb_tracker.config import get_db_path
+
+DB_PATH = get_db_path()
 
 ACTIVE_STATUSES = ('registered', 'doc_pending', 'doc_purchased', 'preparing', 'sealed')
 
@@ -143,7 +145,7 @@ def check_reminders() -> list:
                             f"{opening.strftime('%Y-%m-%d %H:%M')}，请做好准备"
                         ),
                     })
-                # bid_opening 只写一条记录（recipient_role='manager'），按 project_id+type+DATE 去重
+                # 去重表只写1条（manager角色），is_already_sent 按 project_id+type+DATE 检查，与角色无关
                 record_sent(conn, pid, 'bid_opening', 'manager')
 
     conn.commit()

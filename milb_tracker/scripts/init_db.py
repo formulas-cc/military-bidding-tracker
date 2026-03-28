@@ -11,8 +11,10 @@ import sqlite3
 import os
 import sys
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
-ATTACHMENTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'attachments')
+from milb_tracker.config import get_db_path, get_attachments_dir
+
+DB_PATH = get_db_path()
+ATTACHMENTS_DIR = get_attachments_dir()
 
 
 def get_conn() -> sqlite3.Connection:

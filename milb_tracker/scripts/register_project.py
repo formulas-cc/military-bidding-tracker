@@ -12,7 +12,6 @@
 """
 
 import argparse
-import datetime as datetime_module
 import json
 import os
 import shutil
@@ -20,8 +19,10 @@ import sqlite3
 import sys
 from datetime import datetime, timedelta
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
-ATTACHMENTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'attachments')
+from milb_tracker.config import get_db_path, get_attachments_dir
+
+DB_PATH = get_db_path()
+ATTACHMENTS_DIR = get_attachments_dir()
 
 
 def get_conn():
@@ -59,7 +60,7 @@ def calc_suggested_seal_time(bid_opening_time: str, travel_days: int) -> str | N
 
 def generate_project_no(conn) -> str:
     """按 YYYY-NNN 格式自动生成 project_no。"""
-    year = datetime_module.datetime.now().year
+    year = datetime.now().year
     cur = conn.execute(
         "SELECT MAX(CAST(SUBSTR(project_no, 6) AS INTEGER)) FROM projects WHERE project_no LIKE ?",
         (f"{year}-%",))

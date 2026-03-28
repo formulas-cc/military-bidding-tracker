@@ -11,9 +11,10 @@ import sys
 import subprocess
 import json
 import sqlite3
+from pathlib import Path
 from datetime import datetime, timedelta
 
-PROJECT_ROOT = "/mnt/d/Projects/military-bidding-tracker"
+PROJECT_ROOT = str(Path(__file__).parent.parent.resolve())
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def db_path(tmp_path):
     env = os.environ.copy()
     env["DB_PATH"] = p
     result = subprocess.run(
-        [sys.executable, "scripts/init_db.py"],
+        [sys.executable, "-m", "milb_tracker.scripts.init_db"],
         env=env,
         cwd=PROJECT_ROOT,
         capture_output=True,
@@ -43,11 +44,11 @@ def db_conn(db_path):
 
 
 def run_script(script, args, db_path, input_text=None):
-    """Run a script under scripts/ with DB_PATH pointing to the test database."""
+    """Run a script under milb_tracker/scripts/ with DB_PATH pointing to the test database."""
     env = os.environ.copy()
     env["DB_PATH"] = db_path
     return subprocess.run(
-        [sys.executable, f"scripts/{script}"] + args,
+        [sys.executable, "-m", f"milb_tracker.scripts.{script.replace('.py', '')}"] + args,
         capture_output=True,
         text=True,
         env=env,

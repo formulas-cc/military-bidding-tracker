@@ -18,7 +18,9 @@ import re
 import sqlite3
 import sys
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
+from milb_tracker.config import get_db_path
+
+DB_PATH = get_db_path()
 
 
 def get_conn():
@@ -190,7 +192,6 @@ def main():
     parser.add_argument('--by-manager', action='store_true', help='按负责人分组统计')
     parser.add_argument('--by-month', action='store_true', help='按月度趋势统计')
     parser.add_argument('--period', help='指定时间范围，格式 YYYY-MM 或 YYYY-QN')
-    parser.add_argument('--manager', help='指定负责人姓名（暂保留，无单独实现）')
     args = parser.parse_args()
 
     if args.by_month:

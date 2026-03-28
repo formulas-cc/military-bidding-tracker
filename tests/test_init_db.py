@@ -7,15 +7,16 @@ Validates:
 - users.wecom_userid column exists (fix verification)
 - Idempotent execution (run twice without error)
 - WAL journal mode enabled
-- data/attachments/ directory created
+- attachments/ directory created adjacent to DB_PATH
 """
 
 import os
 import sys
 import subprocess
 import sqlite3
+from pathlib import Path
 
-PROJECT_ROOT = "/mnt/d/Projects/military-bidding-tracker"
+PROJECT_ROOT = str(Path(__file__).parent.parent.resolve())
 
 
 def test_all_tables_exist(db_path, db_conn):
@@ -29,13 +30,11 @@ def test_all_tables_exist(db_path, db_conn):
 
 def test_projects_has_project_no_column(db_path, db_conn):
     """Verify fix: project_no column exists in projects table."""
-    # Should not raise OperationalError
     db_conn.execute("SELECT project_no FROM projects LIMIT 0")
 
 
 def test_users_has_wecom_userid(db_path, db_conn):
     """Verify fix: wecom_userid column exists in users table."""
-    # Should not raise OperationalError
     db_conn.execute("SELECT wecom_userid FROM users LIMIT 0")
 
 
@@ -46,7 +45,7 @@ def test_idempotent(tmp_path):
     env["DB_PATH"] = p
     for i in range(2):
         r = subprocess.run(
-            [sys.executable, "scripts/init_db.py"],
+            [sys.executable, "-m", "milb_tracker.scripts.init_db"],
             env=env,
             cwd=PROJECT_ROOT,
             capture_output=True,
@@ -62,5 +61,6 @@ def test_wal_mode(db_path, db_conn):
 
 
 def test_attachments_dir_created(db_path):
-    """data/attachments/ directory should be created by init_db."""
-    assert os.path.isdir(os.path.join(PROJECT_ROOT, "data", "attachments"))
+    """attachments/ directory should be created adjacent to DB_PATH (not hardcoded)."""
+    db_dir = os.path.dirname(db_path)
+    assert os.path.isdir(os.path.join(db_dir, "attachments"))

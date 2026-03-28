@@ -22,7 +22,9 @@ import os
 import sqlite3
 import sys
 
-DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'bids.db'))
+from milb_tracker.config import get_db_path
+
+DB_PATH = get_db_path()
 
 
 def get_conn():
