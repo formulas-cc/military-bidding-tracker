@@ -19,3 +19,6 @@ milb-tracker = "milb_tracker.skill:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["milb_tracker*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
