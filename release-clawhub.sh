@@ -60,7 +60,6 @@ release_project() {
   rm -rf \
     docs/ \
     tests/ \
-    conftest.py \
     run_tests.sh \
     .env \
     .env.example \
@@ -72,8 +71,6 @@ release_project() {
     milb_email.egg-info/ \
     milb_fetcher.egg-info/ \
     .pytest_cache/ \
-    .coverage \
-    htmlcov/ \
     release-clawhub.sh \
     2>/dev/null || true
   success "非发布文件已删除"
