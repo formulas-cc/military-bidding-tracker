@@ -45,7 +45,7 @@ def test_idempotent(tmp_path):
     env["DB_PATH"] = p
     for i in range(2):
         r = subprocess.run(
-            [sys.executable, "-m", "milb_tracker.scripts.init_db"],
+            [sys.executable, "-m", "bidding_tracker.scripts.init_db"],
             env=env,
             cwd=PROJECT_ROOT,
             capture_output=True,

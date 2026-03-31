@@ -15,7 +15,7 @@
 ```bash
 # 1. 克隆项目
 git clone <repo-url>
-cd military-bidding-tracker
+cd bidding-tracker
 
 # 2. 初始化数据库
 python3 scripts/init_db.py

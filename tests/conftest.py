@@ -24,7 +24,7 @@ def db_path(tmp_path):
     env = os.environ.copy()
     env["DB_PATH"] = p
     result = subprocess.run(
-        [sys.executable, "-m", "milb_tracker.scripts.init_db"],
+        [sys.executable, "-m", "bidding_tracker.scripts.init_db"],
         env=env,
         cwd=PROJECT_ROOT,
         capture_output=True,
@@ -44,11 +44,11 @@ def db_conn(db_path):
 
 
 def run_script(script, args, db_path, input_text=None):
-    """Run a script under milb_tracker/scripts/ with DB_PATH pointing to the test database."""
+    """Run a script under bidding_tracker/scripts/ with DB_PATH pointing to the test database."""
     env = os.environ.copy()
     env["DB_PATH"] = db_path
     return subprocess.run(
-        [sys.executable, "-m", f"milb_tracker.scripts.{script.replace('.py', '')}"] + args,
+        [sys.executable, "-m", f"bidding_tracker.scripts.{script.replace('.py', '')}"] + args,
         capture_output=True,
         text=True,
         env=env,

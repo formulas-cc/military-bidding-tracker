@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "milb-tracker"
+name = "bidding-tracker"
 version = "0.1.0"
-description = "军工招投标商机全周期追踪工具"
+description = "招投标商机全周期追踪工具"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
@@ -14,11 +14,11 @@ dependencies = []
 dev = ["pytest"]
 
 [project.scripts]
-milb-tracker = "milb_tracker.skill:main"
+bidding-tracker = "bidding_tracker.skill:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["milb_tracker*"]
+include = ["bidding_tracker*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

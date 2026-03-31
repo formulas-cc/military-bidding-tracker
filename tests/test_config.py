@@ -3,8 +3,8 @@ TEST-09: tests/test_config.py — .env 配置加载优先级验证
 
 验证点：
 - TC-01: CWD/.env 中的值被正确加载
-- TC-02: ~/.config/milb-tracker/.env 中的值被正确加载
-- TC-03: CWD/.env 优先于 ~/.config/milb-tracker/.env（相同键时 CWD 胜出）
+- TC-02: ~/.config/bidding-tracker/.env 中的值被正确加载
+- TC-03: CWD/.env 优先于 ~/.config/bidding-tracker/.env（相同键时 CWD 胜出）
 - TC-04: 进程环境变量优先于所有 .env 文件（最高优先级）
 - TC-05: 无任何 .env 时返回内置默认值
 - TC-06: .env 文件中的注释行和空行被正确忽略
@@ -22,13 +22,13 @@ PROJECT_ROOT = str(Path(__file__).parent.parent.resolve())
 # 用于通过子进程测试 config 模块的辅助脚本片段
 _PRINT_DB_PATH = (
     "import sys; sys.path.insert(0, '.'); "
-    "from milb_tracker.config import get_db_path; "
+    "from bidding_tracker.config import get_db_path; "
     "print(get_db_path())"
 )
 
 _PRINT_ATTACHMENTS_DIR = (
     "import sys; sys.path.insert(0, '.'); "
-    "from milb_tracker.config import get_attachments_dir; "
+    "from bidding_tracker.config import get_attachments_dir; "
     "print(get_attachments_dir())"
 )
 
@@ -36,9 +36,9 @@ _PRINT_ATTACHMENTS_DIR = (
 def _run(code: str, *, cwd: str, home: str | None = None, extra_env: dict | None = None) -> str:
     """在干净的子进程中运行 Python 代码片段，返回 stdout（去除空白）。"""
     env = {k: v for k, v in os.environ.items() if k not in ("DB_PATH", "ATTACHMENTS_DIR")}
-    # 将项目根目录加入 PYTHONPATH，确保 milb_tracker 可被导入
+    # 将项目根目录加入 PYTHONPATH，确保 bidding_tracker 可被导入
     env["PYTHONPATH"] = PROJECT_ROOT
-    # 用 home 参数隔离 ~，使 ~/.config/milb-tracker/.env 指向临时目录
+    # 用 home 参数隔离 ~，使 ~/.config/bidding-tracker/.env 指向临时目录
     env["HOME"] = home or cwd
     if extra_env:
         env.update(extra_env)
@@ -63,9 +63,9 @@ def test_cwd_env_loaded(tmp_path):
 
 
 def test_user_config_env_loaded(tmp_path):
-    """TC-02: ~/.config/milb-tracker/.env 中的 DB_PATH 被正确加载（无 CWD .env）。"""
+    """TC-02: ~/.config/bidding-tracker/.env 中的 DB_PATH 被正确加载（无 CWD .env）。"""
     db = str(tmp_path / "from_user.db")
-    config_dir = tmp_path / ".config" / "milb-tracker"
+    config_dir = tmp_path / ".config" / "bidding-tracker"
     config_dir.mkdir(parents=True)
     (config_dir / ".env").write_text(f"DB_PATH={db}\n")
 
@@ -77,12 +77,12 @@ def test_user_config_env_loaded(tmp_path):
 
 
 def test_cwd_overrides_user_config(tmp_path):
-    """TC-03: 同一键存在时，CWD/.env 优先于 ~/.config/milb-tracker/.env。"""
+    """TC-03: 同一键存在时，CWD/.env 优先于 ~/.config/bidding-tracker/.env。"""
     user_db = str(tmp_path / "user.db")
     cwd_db = str(tmp_path / "cwd.db")
 
     # 用户级配置
-    config_dir = tmp_path / ".config" / "milb-tracker"
+    config_dir = tmp_path / ".config" / "bidding-tracker"
     config_dir.mkdir(parents=True)
     (config_dir / ".env").write_text(f"DB_PATH={user_db}\n")
 

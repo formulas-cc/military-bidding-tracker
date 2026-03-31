@@ -11,7 +11,7 @@ import sqlite3
 import os
 import sys
 
-from milb_tracker.config import get_db_path, get_attachments_dir
+from bidding_tracker.config import get_db_path, get_attachments_dir
 
 DB_PATH = get_db_path()
 ATTACHMENTS_DIR = get_attachments_dir()

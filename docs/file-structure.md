@@ -3,7 +3,7 @@
 > 版本：v1.0 | 日期：2026-03-22 | 关联文档：[api-interfaces.md](./api-interfaces.md)、[technical-design.md](./technical-design.md)
 
 ```
-military-bidding-tracker/
+bidding-tracker/
 ├── SKILL.md                        # REWRITE  — 重写为 9 个斜杠命令架构（/bidding *）
 ├── README.md                       # DEFERRED — 后续迭代补充（项目说明与快速上手指南）
 ├── docs/

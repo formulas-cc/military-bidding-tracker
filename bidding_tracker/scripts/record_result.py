@@ -18,7 +18,7 @@ import os
 import sqlite3
 import sys
 
-from milb_tracker.config import get_db_path
+from bidding_tracker.config import get_db_path
 
 DB_PATH = get_db_path()
 

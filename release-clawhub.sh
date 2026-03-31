@@ -1,9 +1,9 @@
 #!/bin/bash
 # ============================================================
-#  ClawHub Release Script - military-bidding-tracker
+#  ClawHub Release Script - bidding-tracker
 #  用途：将项目发布到 ClawHub（release-clawhub 孤儿分支）
 #
-#  发布内容：SKILL.md、milb_tracker/、pyproject.toml、README.md
+#  发布内容：SKILL.md、bidding_tracker/、pyproject.toml、README.md
 #  排除内容：docs/、tests/、构建产物、开发配置文件
 # ============================================================
 set -euo pipefail
@@ -40,7 +40,7 @@ check_main_branch() {
 release_project() {
   echo ""
   echo -e "${BLUE}════════════════════════════════════════${NC}"
-  info "开始发布: military-bidding-tracker"
+  info "开始发布: bidding-tracker"
   echo -e "${BLUE}════════════════════════════════════════${NC}"
 
   cd "$PROJECT_DIR" || error "目录不存在: $PROJECT_DIR"
@@ -72,11 +72,9 @@ release_project() {
     .env.example \
     .gitignore \
     __pycache__ \
-    milb_tracker/__pycache__ \
-    milb_tracker/scripts/__pycache__ \
-    milb_tracker.egg-info/ \
-    milb_email.egg-info/ \
-    milb_fetcher.egg-info/ \
+    bidding_tracker/__pycache__ \
+    bidding_tracker/scripts/__pycache__ \
+    bidding_tracker.egg-info/ \
     .pytest_cache/ \
     .coverage \
     htmlcov/ \

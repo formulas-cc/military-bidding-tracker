@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-军工招投标商机全周期追踪工具 - Skill 入口
+招投标商机全周期追踪工具 - Skill 入口
 
 提供 CLI 和函数调用两种方式，统一权限控制：
 - CLI 模式：通过命令行参数调用
 - 函数模式：通过 bid_project_manager() 调用（OpenClaw Skill）
 
 用法:
-    python -m milb_tracker.skill --help
-    python -m milb_tracker.skill init --name "王总监"
-    python -m milb_tracker.skill register --json '{...}' --manager-name "张经理"
+    python -m bidding_tracker.skill --help
+    python -m bidding_tracker.skill init --name "王总监"
+    python -m bidding_tracker.skill register --json '{...}' --manager-name "张经理"
 """
 
 import argparse
@@ -19,34 +19,34 @@ import os
 import sqlite3
 import subprocess
 import sys
-from milb_tracker.config import get_db_path, load_env
+from bidding_tracker.config import get_db_path, load_env
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
 
-HELP_TEXT = """军工招投标商机全周期追踪工具
+HELP_TEXT = """招投标商机全周期追踪工具
 
 用法:
-    milb-tracker init --name "姓名"           初始化系统（首次使用，总监注册）
-    milb-tracker register                     注册新项目（交互式）
-    milb-tracker register --json '...'        注册新项目（JSON 参数）
-    milb-tracker status                       查看项目列表
-    milb-tracker status --keyword "关键词"    按关键词搜索项目
-    milb-tracker purchased "项目名"            确认已购买标书
-    milb-tracker seal "项目名"                 确认已封标
-    milb-tracker result "项目名" --won         录入中标结果
-    milb-tracker result "项目名" --lost        录入未中标结果
-    milb-tracker cancel "项目名"               取消项目
-    milb-tracker users                         查看团队成员
-    milb-tracker adduser --user-id xxx --name "姓名"  添加负责人
-    milb-tracker stats                         查看统计（默认按月）
-    milb-tracker stats --by-manager           按负责人统计
-    milb-tracker stats --by-month --period 2026-Q1  按季度统计
+    bidding-tracker init --name "姓名"           初始化系统（首次使用，总监注册）
+    bidding-tracker register                     注册新项目（交互式）
+    bidding-tracker register --json '...'        注册新项目（JSON 参数）
+    bidding-tracker status                       查看项目列表
+    bidding-tracker status --keyword "关键词"    按关键词搜索项目
+    bidding-tracker purchased "项目名"            确认已购买标书
+    bidding-tracker seal "项目名"                 确认已封标
+    bidding-tracker result "项目名" --won         录入中标结果
+    bidding-tracker result "项目名" --lost        录入未中标结果
+    bidding-tracker cancel "项目名"               取消项目
+    bidding-tracker users                         查看团队成员
+    bidding-tracker adduser --new-user-id xxx --name "姓名"  添加负责人
+    bidding-tracker stats                         查看统计（默认按月）
+    bidding-tracker stats --by-manager           按负责人统计
+    bidding-tracker stats --by-month --period 2026-Q1  按季度统计
 
 示例:
-    milb-tracker init --name "王总监"
-    milb-tracker status
-    milb-tracker result "XX系统采购" --won --our-price 980000 --winning-price 950000
-    milb-tracker stats --by-month
+    bidding-tracker init --name "王总监"
+    bidding-tracker status
+    bidding-tracker result "XX系统采购" --won --our-price 980000 --winning-price 950000
+    bidding-tracker stats --by-month
 """
 
 # 权限常量
@@ -300,10 +300,10 @@ def cmd_users(args, user_id: str):
 
 def cmd_adduser(args, user_id: str):
     """添加用户"""
-    if not args.user_id or not args.name:
-        return {"status": "error", "message": "需要提供 --user-id 和 --name 参数"}
+    if not args.new_user_id or not args.name:
+        return {"status": "error", "message": "需要提供 --new-user-id 和 --name 参数"}
 
-    cmd_args = ['--add', '--caller-id', user_id, '--user-id', args.user_id, '--name', args.name]
+    cmd_args = ['--add', '--caller-id', user_id, '--user-id', args.new_user_id, '--name', args.name]
 
     if args.contact:
         cmd_args.extend(['--contact', args.contact])
@@ -346,7 +346,7 @@ def cmd_stats(args, user_id: str):
 def main():
     """CLI 入口函数"""
     parser = argparse.ArgumentParser(
-        description='军工招投标商机全周期追踪工具',
+        description='招投标商机全周期追踪工具',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=HELP_TEXT
     )
@@ -400,7 +400,7 @@ def main():
 
     # adduser
     p_adduser = subparsers.add_parser('adduser', help='添加负责人')
-    p_adduser.add_argument('--user-id', required=True, help='用户 ID')
+    p_adduser.add_argument('--new-user-id', required=True, help='新用户 ID')
     p_adduser.add_argument('--name', required=True, help='用户显示名称')
     p_adduser.add_argument('--contact', help='联系方式')
 
@@ -517,7 +517,7 @@ def bid_project_manager(action_type: str, project_data: dict = None, **kwargs) -
     elif action_type == 'users':
         args.role = project_data.get('role')
     elif action_type == 'adduser':
-        args.user_id = project_data.get('user_id', '')
+        args.new_user_id = project_data.get('user_id', '')
         args.name = project_data.get('name', '')
         args.contact = project_data.get('contact')
     elif action_type == 'stats':

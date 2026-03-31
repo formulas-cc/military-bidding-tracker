@@ -19,7 +19,7 @@ import sqlite3
 import sys
 from datetime import datetime, timedelta
 
-from milb_tracker.config import get_db_path, get_attachments_dir
+from bidding_tracker.config import get_db_path, get_attachments_dir
 
 DB_PATH = get_db_path()
 ATTACHMENTS_DIR = get_attachments_dir()

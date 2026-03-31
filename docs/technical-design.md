@@ -953,7 +953,7 @@ wecom-openclaw-plugin（企业微信 Channel 接入，WebSocket 长连接）
 ```bash
 # 1. 克隆项目
 git clone <repo-url>
-cd military-bidding-tracker
+cd bidding-tracker
 
 # 2. 初始化数据库（幂等，可重复执行）
 python3 scripts/init_db.py

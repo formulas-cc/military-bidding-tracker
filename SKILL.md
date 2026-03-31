@@ -1,12 +1,12 @@
 ---
-name: milb-tracker
-description: 军工招投标商机全周期追踪，覆盖项目登记、标书采购、封标、开标、结果录入与统计分析
-metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["milb-tracker"]},"install":"pip install -e {baseDir}"}}
+name: bidding-tracker
+description: 招投标商机全周期追踪，覆盖项目登记、标书采购、封标、开标、结果录入与统计分析
+metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker"]},"install":"pip install -e {baseDir}"}}
 ---
 
-# milb-tracker 使用指南
+# bidding-tracker 使用指南
 
-> 本文档面向 LLM，说明如何通过 `milb-tracker` CLI 管理军工招投标项目全生命周期。
+> 本文档面向 LLM，说明如何通过 `bidding-tracker` CLI 管理招投标项目全生命周期。
 
 ---
 
@@ -15,7 +15,7 @@ metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["milb-tracker"]},"inst
 系统首次使用时，必须先注册总监账号，否则所有非 init 命令均会报错。
 
 ```bash
-milb-tracker init --name "王总监"
+bidding-tracker init --name "王总监"
 ```
 
 执行后返回 `{"status": "ok"}` 即可继续使用其他命令。
@@ -29,7 +29,7 @@ milb-tracker init --name "王总监"
 收到招标公告时，提取关键字段并调用 register。`--json` 传入结构化字段，`--manager-name` 指定负责人姓名。
 
 ```bash
-milb-tracker register \
+bidding-tracker register \
   --json '{"project_name":"XX系统采购","budget":500000,"bid_opening_time":"2026-05-10T14:00:00","doc_purchase_deadline":"2026-04-20T17:00:00"}' \
   --manager-name "张经理" \
   --travel-days 2
@@ -63,9 +63,9 @@ milb-tracker register \
 ### 2. 查看项目列表
 
 ```bash
-milb-tracker status                          # 查看所有活跃项目
-milb-tracker status --keyword "关键词"       # 按项目名或编号搜索
-milb-tracker status --upcoming-days 7       # 查看7天内有关键节点的项目
+bidding-tracker status                          # 查看所有活跃项目
+bidding-tracker status --keyword "关键词"       # 按项目名或编号搜索
+bidding-tracker status --upcoming-days 7       # 查看7天内有关键节点的项目
 ```
 
 ### 3. 状态推进
@@ -74,9 +74,9 @@ milb-tracker status --upcoming-days 7       # 查看7天内有关键节点的项
 
 | 用户场景 | 命令 |
 |----------|------|
-| 已购买标书 | `milb-tracker purchased "项目名"` |
-| 已封标/已寄出标书 | `milb-tracker seal "项目名"` |
-| 项目废标、放弃投标 | `milb-tracker cancel "项目名"` |
+| 已购买标书 | `bidding-tracker purchased "项目名"` |
+| 已封标/已寄出标书 | `bidding-tracker seal "项目名"` |
+| 项目废标、放弃投标 | `bidding-tracker cancel "项目名"` |
 
 ### 4. 录入开标结果
 
@@ -84,10 +84,10 @@ milb-tracker status --upcoming-days 7       # 查看7天内有关键节点的项
 
 ```bash
 # 中标
-milb-tracker result "项目名" --won --our-price 980000 --winning-price 980000
+bidding-tracker result "项目名" --won --our-price 980000 --winning-price 980000
 
 # 未中标（尽量提供完整信息）
-milb-tracker result "项目名" --lost --our-price 1050000 --winning-price 980000 --winner "某某公司" --notes "报价偏高"
+bidding-tracker result "项目名" --lost --our-price 1050000 --winning-price 980000 --winner "某某公司" --notes "报价偏高"
 ```
 
 ---
@@ -114,9 +114,9 @@ registered → doc_pending → doc_purchased → preparing → sealed → opened
 ## 团队管理
 
 ```bash
-milb-tracker users                                          # 查看所有成员
-milb-tracker users --role manager                          # 仅看负责人
-milb-tracker adduser --user-id wx_uid --name "李经理" --contact "138xxxx"
+bidding-tracker users                                          # 查看所有成员
+bidding-tracker users --role manager                          # 仅看负责人
+bidding-tracker adduser --new-user-id wx_uid --name "李经理" --contact "138xxxx"
 ```
 
 > `adduser` 仅总监可执行。
@@ -126,11 +126,11 @@ milb-tracker adduser --user-id wx_uid --name "李经理" --contact "138xxxx"
 ## 统计分析
 
 ```bash
-milb-tracker stats                         # 全局汇总（胜率、平均预算等）
-milb-tracker stats --by-month             # 按月趋势
-milb-tracker stats --by-manager           # 按负责人分组
-milb-tracker stats --by-month --period 2026-Q1   # 限定季度范围
-milb-tracker stats --by-month --period 2026-03   # 限定月份范围
+bidding-tracker stats                         # 全局汇总（胜率、平均预算等）
+bidding-tracker stats --by-month             # 按月趋势
+bidding-tracker stats --by-manager           # 按负责人分组
+bidding-tracker stats --by-month --period 2026-Q1   # 限定季度范围
+bidding-tracker stats --by-month --period 2026-03   # 限定月份范围
 ```
 
 > `--by-manager` 与 `--by-month` 不可同时使用。
@@ -162,4 +162,4 @@ milb-tracker stats --by-month --period 2026-03   # 限定月份范围
 | `DB_PATH` | SQLite 数据库路径 | `{CWD}/data/bids.db` |
 | `ATTACHMENTS_DIR` | 附件存储根目录 | `{DB_PATH同级}/attachments` |
 
-加载优先级：进程环境变量 > `{CWD}/.env` > `~/.config/milb-tracker/.env` > 默认值。
+加载优先级：进程环境变量 > `{CWD}/.env` > `~/.config/bidding-tracker/.env` > 默认值。
