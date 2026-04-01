@@ -50,7 +50,10 @@ CREATE TABLE IF NOT EXISTS projects (
     announcement_path       TEXT,
     status                  TEXT NOT NULL DEFAULT 'registered',
     created_at              TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
-    updated_at              TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+    updated_at              TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    win_probability REAL,
+    win_prediction  TEXT,
+    win_eval_at     TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bid_results (
@@ -91,6 +94,14 @@ def main():
 
         conn = get_conn()
         conn.executescript(DDL)
+        conn.commit()
+
+        # 迁移：为已有数据库安全添加评估字段
+        for col_name, col_type in [("win_probability", "REAL"), ("win_prediction", "TEXT"), ("win_eval_at", "TEXT")]:
+            try:
+                conn.execute(f"ALTER TABLE projects ADD COLUMN {col_name} {col_type}")
+            except sqlite3.OperationalError:
+                pass  # 列已存在
         conn.commit()
         conn.close()
 

@@ -90,3 +90,30 @@ def get_attachments_dir() -> str:
     load_env()
     default = str(Path(get_db_path()).parent / "attachments")
     return os.environ.get("ATTACHMENTS_DIR", default)
+
+
+def get_evaluate_prompt() -> str:
+    """返回评估分析 prompt 内容（自动触发 .env 加载）。
+
+    优先级：~/.config/bidding-tracker/evaluate_prompt.md > 包内默认
+    """
+    load_env()
+    user_prompt = Path.home() / ".config" / "bidding-tracker" / "evaluate_prompt.md"
+    if user_prompt.exists():
+        return user_prompt.read_text(encoding="utf-8")
+    default = Path(__file__).parent / "prompts" / "evaluate_prompt.md"
+    return default.read_text(encoding="utf-8")
+
+
+def get_profiles() -> str:
+    """返回投标主体战略资产库内容（自动触发 .env 加载）。
+
+    优先级：~/.config/bidding-tracker/profiles.md > 包内默认
+    用户可编辑 ~/.config/bidding-tracker/profiles.md 更新公司资质/业绩，无需修改代码。
+    """
+    load_env()
+    user_profiles = Path.home() / ".config" / "bidding-tracker" / "profiles.md"
+    if user_profiles.exists():
+        return user_profiles.read_text(encoding="utf-8")
+    default = Path(__file__).parent / "prompts" / "profiles.md"
+    return default.read_text(encoding="utf-8")

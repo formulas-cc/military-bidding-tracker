@@ -1,7 +1,7 @@
 ---
 name: bidding-tracker
 description: 招投标商机全周期追踪，覆盖项目登记、标书采购、封标、开标、结果录入与统计分析
-metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker"]},"install":"pip install -e {baseDir}"}}
+metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker","evaluate","bind-eval"]},"install":"pip install -e {baseDir}"}}
 ---
 
 # bidding-tracker 使用指南
@@ -134,6 +134,48 @@ bidding-tracker stats --by-month --period 2026-03   # 限定月份范围
 ```
 
 > `--by-manager` 与 `--by-month` 不可同时使用。
+
+---
+
+## 胜算评估
+
+### evaluate - 解析招标文件
+
+读取 PDF/Word/TXT 招标文件，提取文本并组装分析 prompt，供 LLM 进行深度博弈评估。
+
+```bash
+bidding-tracker evaluate --file /path/to/tender.pdf
+bidding-tracker evaluate --file /path/to/tender.docx
+```
+
+成功返回：
+```json
+{
+  "status": "ok",
+  "message": "招标文件《xxx.pdf》已解析（12345 字），请按分析框架进行深度博弈评估",
+  "data": {
+    "analysis_prompt": "...",
+    "document_text": "...",
+    "file_name": "xxx.pdf"
+  }
+}
+```
+
+LLM 收到响应后，应将 `analysis_prompt` 作为系统指令，`profiles` 作为投标主体战略资产库上下文，`document_text` 作为待分析文档，综合输出深度博弈报告。
+
+> **自定义主体档案：** `profiles` 字段内容优先读取 `~/.config/bidding-tracker/profiles.md`（如存在），否则使用包内默认。用户可编辑该文件更新公司资质、人员与业绩信息，无需修改代码。
+
+### bind-eval - 绑定胜算评估结果
+
+将评估胜率（0-1）和报告摘要绑定到指定项目，记录评估时间。
+
+```bash
+bidding-tracker bind-eval "项目名" --probability 0.75
+bidding-tracker bind-eval "项目名" --probability 0.75 --report "技术优势明显，但缺乏CMMI认证"
+bidding-tracker bind-eval "2026-001" --probability 0.4 --report "疑似定向标，建议陪跑"
+```
+
+`--probability` 取值范围 `0.0~1.0`，`--report` 为可选的预测报告摘要（建议不超过200字）。
 
 ---
 

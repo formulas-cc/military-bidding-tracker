@@ -19,7 +19,7 @@ import os
 import sqlite3
 import subprocess
 import sys
-from bidding_tracker.config import get_db_path, load_env
+from bidding_tracker.config import get_db_path, load_env, get_evaluate_prompt, get_profiles
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
 
@@ -41,6 +41,9 @@ HELP_TEXT = """招投标商机全周期追踪工具
     bidding-tracker stats                         查看统计（默认按月）
     bidding-tracker stats --by-manager           按负责人统计
     bidding-tracker stats --by-month --period 2026-Q1  按季度统计
+    bidding-tracker evaluate --file /path/to/tender.pdf    解析招标文件（胜算评估）
+    bidding-tracker bind-eval "项目名" --probability 0.75  绑定胜算到项目
+    bidding-tracker bind-eval "项目名" --probability 0.75 --report "技术优势明显"
 
 示例:
     bidding-tracker init --name "王总监"
@@ -144,8 +147,46 @@ def run_script(script_name: str, args: list[str], db_path: str = None) -> subpro
     cmd = [sys.executable, script_path] + args
     env = os.environ.copy()
     env['DB_PATH'] = db_path or get_db_path()
+    # 确保子进程能够导入 bidding_tracker 包
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    existing_pp = env.get('PYTHONPATH', '')
+    env['PYTHONPATH'] = f"{project_root}:{existing_pp}" if existing_pp else project_root
     result = subprocess.run(cmd, capture_output=True, text=True, env=env)
     return result
+
+
+def extract_document_text(file_path: str) -> tuple[str, str]:
+    """提取文档文本，返回 (文本内容, 错误信息)。支持 PDF、Word、纯文本。"""
+    path = os.path.abspath(file_path)
+    if not os.path.exists(path):
+        return "", f"文件不存在：{path}"
+    ext = os.path.splitext(path)[1].lower()
+    if ext == '.pdf':
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(path)
+            pages = [page.extract_text() or "" for page in reader.pages]
+            return "\n".join(pages), ""
+        except ImportError:
+            return "", "缺少依赖：请执行 pip install pypdf"
+        except Exception as e:
+            return "", f"PDF 解析失败：{e}"
+    elif ext == '.docx':
+        try:
+            import docx
+            doc = docx.Document(path)
+            paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+            return "\n".join(paragraphs), ""
+        except ImportError:
+            return "", "缺少依赖：请执行 pip install python-docx"
+        except Exception as e:
+            return "", f"Word 文档解析失败：{e}"
+    else:
+        try:
+            with open(path, encoding='utf-8') as f:
+                return f.read(), ""
+        except Exception as e:
+            return "", f"文件读取失败：{e}"
 
 
 # ========== 命令处理函数 ==========
@@ -341,6 +382,55 @@ def cmd_stats(args, user_id: str):
         return {"status": "error", "message": json.loads(result.stderr).get("error", "统计失败")}
 
 
+def cmd_evaluate(args, user_id: str):
+    """解析招标文件并组装分析 prompt（供 OpenClaw LLM 消费）"""
+    if not args.file:
+        return {"status": "error", "message": "需要提供 --file 参数指定招标文件路径"}
+    text, err = extract_document_text(args.file)
+    if err:
+        return {"status": "error", "message": err}
+    if not text.strip():
+        return {"status": "error", "message": "文档内容为空，无法解析"}
+    prompt = get_evaluate_prompt()
+    file_name = os.path.basename(args.file)
+    return {
+        "status": "ok",
+        "message": f"招标文件《{file_name}》已解析（{len(text)} 字），请按分析框架进行深度博弈评估",
+        "data": {
+            "analysis_prompt": prompt,
+            "profiles": get_profiles(),
+            "document_text": text,
+            "file_name": file_name,
+        }
+    }
+
+
+def cmd_bind_eval(args, user_id: str, role: str):
+    """将评估结果绑定到项目"""
+    if not args.keyword:
+        return {"status": "error", "message": "需要提供项目名称或编号"}
+    if args.probability is None:
+        return {"status": "error", "message": "需要提供 --probability 参数"}
+    if not (0.0 <= args.probability <= 1.0):
+        return {"status": "error", "message": "--probability 取值范围 0.0~1.0"}
+    project_id, err = check_project_access(user_id, args.keyword, role)
+    if err:
+        return {"status": "error", "message": err}
+    from datetime import datetime
+    eval_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result = run_script('update_project.py', ['--id', str(project_id), '--field', 'win_probability', '--value', str(args.probability)])
+    if result.returncode != 0:
+        return {"status": "error", "message": json.loads(result.stderr).get("error", "更新胜率失败")}
+    if args.report:
+        result2 = run_script('update_project.py', ['--id', str(project_id), '--field', 'win_prediction', '--value', args.report])
+        if result2.returncode != 0:
+            return {"status": "error", "message": json.loads(result2.stderr).get("error", "更新预测报告失败")}
+    run_script('update_project.py', ['--id', str(project_id), '--field', 'win_eval_at', '--value', eval_at])
+    prob_pct = f"{args.probability * 100:.0f}%"
+    report_preview = f"，报告：{args.report[:50]}..." if args.report and len(args.report) > 50 else (f"，报告：{args.report}" if args.report else "")
+    return {"status": "ok", "message": f"胜算评估已绑定：{prob_pct}{report_preview}"}
+
+
 # ========== CLI 入口 ==========
 
 def main():
@@ -410,6 +500,16 @@ def main():
     p_stats.add_argument('--by-month', action='store_true', help='按月份统计')
     p_stats.add_argument('--period', help='统计周期')
 
+    # evaluate
+    p_eval = subparsers.add_parser('evaluate', help='解析招标文件，生成胜算评估所需内容')
+    p_eval.add_argument('--file', required=True, help='招标文件路径 (PDF/Word/TXT)')
+
+    # bind-eval
+    p_bind = subparsers.add_parser('bind-eval', help='将评估胜率绑定到项目')
+    p_bind.add_argument('keyword', nargs='?', help='项目名称或编号')
+    p_bind.add_argument('--probability', type=float, required=True, help='胜率 0.0-1.0')
+    p_bind.add_argument('--report', help='预测报告摘要')
+
     args = parser.parse_args()
 
     # 确保数据目录存在
@@ -451,6 +551,10 @@ def main():
         result = cmd_adduser(args, user_id)
     elif args.command == 'stats':
         result = cmd_stats(args, user_id)
+    elif args.command == 'evaluate':
+        result = cmd_evaluate(args, user_id)
+    elif args.command == 'bind-eval':
+        result = cmd_bind_eval(args, user_id, role)
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
     sys.exit(0 if result.get('status') == 'ok' else 1)
@@ -524,6 +628,18 @@ def bid_project_manager(action_type: str, project_data: dict = None, **kwargs) -
         args.by_manager = project_data.get('by_manager')
         args.by_month = project_data.get('by_month')
         args.period = project_data.get('period')
+    elif action_type == 'evaluate':
+        try:
+            attachments = kwargs['__context__']['body'].get('attachments', [])
+            if attachments:
+                project_data['file'] = attachments[0].get('local_path', '')
+        except (KeyError, TypeError, IndexError):
+            pass
+        args.file = project_data.get('file', '')
+    elif action_type == 'bind-eval':
+        args.keyword = project_data.get('keyword', '')
+        args.probability = project_data.get('probability')
+        args.report = project_data.get('report', '')
 
     # 执行命令
     if action_type == 'init':
@@ -546,6 +662,10 @@ def bid_project_manager(action_type: str, project_data: dict = None, **kwargs) -
         return cmd_adduser(args, user_id)
     elif action_type == 'stats':
         return cmd_stats(args, user_id)
+    elif action_type == 'evaluate':
+        return cmd_evaluate(args, user_id)
+    elif action_type == 'bind-eval':
+        return cmd_bind_eval(args, user_id, role)
     else:
         return {"status": "error", "message": f"未知操作类型：{action_type}"}
 

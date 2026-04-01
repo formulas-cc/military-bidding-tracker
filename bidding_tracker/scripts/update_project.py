@@ -53,6 +53,7 @@ UPDATABLE_FIELDS = {
     'actual_seal_time', 'project_manager', 'manager_contact',
     'bid_opening_time', 'bid_opening_location', 'suggested_seal_time',
     'announcement_path',
+    'win_probability', 'win_prediction', 'win_eval_at',
 }
 
 

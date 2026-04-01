@@ -23,6 +23,7 @@ def db_path(tmp_path):
     p = str(tmp_path / "test_bids.db")
     env = os.environ.copy()
     env["DB_PATH"] = p
+    env["ATTACHMENTS_DIR"] = str(tmp_path / "attachments")
     result = subprocess.run(
         [sys.executable, "-m", "bidding_tracker.scripts.init_db"],
         env=env,
