@@ -1,7 +1,7 @@
 ---
 name: bidding-tracker
 description: 招投标商机全周期追踪，覆盖项目登记、标书采购、封标、开标、结果录入与统计分析
-metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker","evaluate","bind-eval"]},"install":"pip install -e {baseDir}"}}
+metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker"]},"install":"pip install -e {baseDir}"}}
 ---
 
 # bidding-tracker 使用指南

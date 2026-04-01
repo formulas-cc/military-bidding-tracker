@@ -611,6 +611,9 @@ def bid_project_manager(action_type: str, project_data: dict = None, **kwargs) -
         args.interactive = False
     elif action_type in ('status', 'purchased', 'seal', 'result', 'cancel'):
         args.keyword = project_data.get('keyword')
+        if action_type == 'status':
+            args.active_only = project_data.get('active_only', False)
+            args.upcoming_days = project_data.get('upcoming_days')
         if action_type == 'result':
             args.won = project_data.get('is_won')
             args.lost = not project_data.get('is_won') if 'is_won' in project_data else False
