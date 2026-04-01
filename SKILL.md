@@ -1,12 +1,15 @@
 ---
 name: bidding-tracker
-description: 招投标商机全周期追踪，覆盖项目登记、标书采购、封标、开标、结果录入与统计分析
+description: 军政采招投标商机管理专用工具。负责项目登记/标书采购/封标/开标/结果录入/中标统计/胜算评估，不处理合同履约、发票、报销或其他非招投标事务。
 metadata: {"openclaw":{"emoji":"📋","requires":{"bins":["bidding-tracker"]},"install":"pip install -e {baseDir}"}}
 ---
 
 # bidding-tracker 使用指南
 
 > 本文档面向 LLM，说明如何通过 `bidding-tracker` CLI 管理招投标项目全生命周期。
+>
+> **适用范围**：军队采购（军采）和政府采购（政采）的投标商机跟踪，包括项目登记、标书购买、封标投递、开标结果、中标统计、招标文件胜算评估。
+> **不适用**：合同管理、发票报销、项目交付、非招投标的采购咨询。
 
 ---
 
@@ -155,13 +158,14 @@ bidding-tracker evaluate --file /path/to/tender.docx
   "message": "招标文件《xxx.pdf》已解析（12345 字），请按分析框架进行深度博弈评估",
   "data": {
     "analysis_prompt": "...",
+    "profiles": "...",
     "document_text": "...",
     "file_name": "xxx.pdf"
   }
 }
 ```
 
-LLM 收到响应后，应将 `analysis_prompt` 作为系统指令，`profiles` 作为投标主体战略资产库上下文，`document_text` 作为待分析文档，综合输出深度博弈报告。
+LLM 收到响应后，应将 `analysis_prompt` 作为分析框架指令，`profiles` 作为投标主体战略资产库上下文，`document_text` 作为待分析的招标文件原文，三者结合输出深度博弈报告。
 
 > **自定义主体档案：** `profiles` 字段内容优先读取 `~/.config/bidding-tracker/profiles.md`（如存在），否则使用包内默认。用户可编辑该文件更新公司资质、人员与业绩信息，无需修改代码。
 

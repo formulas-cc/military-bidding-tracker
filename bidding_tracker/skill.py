@@ -567,7 +567,11 @@ def bid_project_manager(action_type: str, project_data: dict = None, **kwargs) -
     OpenClaw Skill Tool 函数入口
 
     Args:
-        action_type: 操作类型 (init/register/status/purchased/seal/result/cancel/users/adduser/stats)
+        action_type: 操作类型
+            项目生命周期: init / register / status / purchased / seal / result / cancel
+            团队管理:     users / adduser
+            统计分析:     stats
+            胜算评估:     evaluate / bind-eval
         project_data: 业务参数 dict
         **kwargs: OpenClaw 引擎注入，含 __context__
 
